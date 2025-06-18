@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { User } from '../models/user.models';
-import { any, z } from 'zod';
+import { z } from 'zod';
 export const userRouter = express.Router();
 
 const userSchemaZod = z.object({
@@ -27,7 +27,7 @@ userRouter.post("/create-user", async (req: Request, res: Response) => {
         const userInfo = await userSchemaZod.parseAsync(req.body);
         // console.log(userInfo)
         const user = await User.create(userInfo);
-        res.status(200).json({ success: true, message: "Successfully user create!", user:{} })
+        res.status(200).json({ success: true, message: "Successfully user create!", user: user })
     } catch (error: any) {
         console.log(error)
         res.status(400).json({ success: false, message: error.message || 'Something went wrong' })
