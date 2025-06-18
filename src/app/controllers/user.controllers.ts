@@ -1,6 +1,15 @@
 import express, { Request, Response } from 'express';
 import { User } from '../models/user.models';
+import { any, z } from 'zod';
 export const userRouter = express.Router();
+
+const userSchemaZod = z.object({
+    fName: z.string(),
+    lName: z.string(),
+    email: z.string(),
+    password: z.string(),
+    role: z.string().optional()
+})
 
 userRouter.get("/get-user", async (req: Request, res: Response) => {
     const user = await User.find();
@@ -14,9 +23,15 @@ userRouter.get("/get-user/:id", async (req: Request, res: Response) => {
 });
 
 userRouter.post("/create-user", async (req: Request, res: Response) => {
-    const userInfo = req.body;
-    const user = await User.create(userInfo);
-    res.status(200).json({ success: true, message: "Successfully user create!", user })
+    try {
+        const userInfo = await userSchemaZod.parseAsync(req.body);
+        // console.log(userInfo)
+        const user = await User.create(userInfo);
+        res.status(200).json({ success: true, message: "Successfully user create!", user:{} })
+    } catch (error: any) {
+        console.log(error)
+        res.status(400).json({ success: false, message: error.message || 'Something went wrong' })
+    }
 });
 
 userRouter.patch("/update-user/:id", async (req: Request, res: Response) => {

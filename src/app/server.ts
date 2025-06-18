@@ -2,8 +2,9 @@ import { Server } from 'http';
 import app from "./app";
 import mongoose from 'mongoose';
 
-const port = 5000
+const port = 5000;
 let server: Server;
+
 async function main() {
     try {
         await mongoose.connect('mongodb+srv://demoDB:jIrd2hFPr6p9f5GJ@cluster0.fnfrn.mongodb.net/noteDB?retryWrites=true&w=majority&appName=Cluster0');
@@ -16,4 +17,4 @@ async function main() {
     }
 }
 
-main()
+main();

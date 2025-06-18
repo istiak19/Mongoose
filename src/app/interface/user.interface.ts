@@ -3,5 +3,5 @@ export interface IUser {
     lName: string,
     email: string,
     password: string,
-    role: 'user' | 'admin'
+    role: 'USER' | 'ADMIN'
 }
