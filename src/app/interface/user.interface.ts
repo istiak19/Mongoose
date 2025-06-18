@@ -12,3 +12,7 @@ export interface IUser {
     role: 'USER' | 'ADMIN',
     address: IAddress
 }
+
+export interface UserMethods {
+    hashPassword(password: string): string
+}

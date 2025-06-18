@@ -19,7 +19,12 @@ const noteSchema = new Schema<INote>({
         name: String,
         color: { type: String, enum: ['red', 'black', 'white'] }
     },
-    comments: [commentSchema]
+    comments: [commentSchema],
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    }
 });
 
 export const Note = model<INote>("Note", noteSchema);

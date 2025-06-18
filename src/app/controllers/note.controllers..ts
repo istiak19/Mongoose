@@ -4,7 +4,7 @@ import { Note } from '../models/note.models';
 export const noteRoute = express.Router();
 
 noteRoute.get("/note", async (req: Request, res: Response) => {
-    const notes = await Note.find();
+    const notes = await Note.find().populate("user");
     res.status(200).json({ success: true, message: "Successfully notes get!", notes });
 });
 

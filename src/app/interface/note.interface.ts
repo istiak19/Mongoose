@@ -1,3 +1,5 @@
+import { Types } from "mongoose"
+
 export interface IComment {
     text: string,
     createdAt: Date
@@ -10,5 +12,6 @@ export interface INote {
     pinned: boolean,
     date: Date,
     tags: string,
-    comments: IComment
+    comments: IComment,
+    user: Types.ObjectId
 }
