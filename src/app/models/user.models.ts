@@ -1,7 +1,8 @@
 import { Model, model, Schema } from "mongoose";
-import { IAddress, IUser, UserMethods } from "../interface/user.interface";
+import { IAddress, IUser, UserMethods, UserStaticMethods } from "../interface/user.interface";
 import validator from 'validator';
 import bcrypt from "bcryptjs";
+import { Note } from "./note.models";
 
 
 const addressSchema = new Schema<IAddress>({
@@ -21,7 +22,7 @@ const addressSchema = new Schema<IAddress>({
     _id: false
 })
 
-const userSchema = new Schema<IUser, Model<IUser>, UserMethods>({
+const userSchema = new Schema<IUser, UserStaticMethods, UserMethods>({
     fName: {
         type: String,
         required: [true, 'First name is required'],
@@ -59,12 +60,60 @@ const userSchema = new Schema<IUser, Model<IUser>, UserMethods>({
     address: { type: addressSchema }
 }, {
     timestamps: true,
-    versionKey: false
+    versionKey: false,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-userSchema.method("hashPassword", async function (plainPassword: string) {
+// Built-in Static Methods
+userSchema.static("hashPassword", async function (plainPassword: string) {
     const password = await bcrypt.hash(plainPassword, 10);
     return password;
+});
+
+// Pre Hooks
+
+// Document middleware
+userSchema.pre("save", async function (next) {
+    this.password = await bcrypt.hash(this.password, 10);
+    // console.log(this)
+    next()
 })
 
-export const User = model<IUser>("User", userSchema);
+// Query middleware
+userSchema.pre("find", function (next) {
+    next()
+})
+
+// Post Hooks
+
+// Document middleware
+userSchema.post("save", function (doc, next) {
+    console.log('%s has been saved', doc._id);
+    next()
+})
+
+// Query middleware
+userSchema.post("findOneAndDelete", async function (doc, next) {
+    if (doc) {
+        console.log(doc);
+        await Note.deleteMany({ user: doc._id })
+    }
+    next()
+})
+
+// Using Virtuals
+
+userSchema.virtual("fullName").get(function () {
+    return `${this.fName} ${this.lName}`
+})
+
+export const User = model<IUser, UserStaticMethods>("User", userSchema);
+
+// Built-in instance method
+// userSchema.method("hashPassword", async function (plainPassword: string) {
+//     const password = await bcrypt.hash(plainPassword, 10);
+//     return password;
+// })
+
+// export const User = model<IUser, Model<IUser, {}, UserMethods>>("User", userSchema);

@@ -14,7 +14,16 @@ const userSchemaZod = z.object({
 })
 
 userRouter.get("/get-user", async (req: Request, res: Response) => {
-    const user = await User.find();
+    const userEmail = req.query.email;
+    // let user = []
+    // if (userEmail) {
+    //     user = await User.find({ email: userEmail });
+    // }
+    // else {
+    //     user = await User.find()
+    // }
+    // const user = await User.find().sort({ "email": -1})
+    const user = await User.find().limit(2)
     res.status(201).json({ success: true, message: "Successfully user by get!", user })
 });
 
@@ -31,12 +40,19 @@ userRouter.post("/create-user", async (req: Request, res: Response) => {
         // const password = await bcrypt.hash(userInfo.password, 10);
         // console.log(password)
         // userInfo.password = password
-        // const user = await User.create(userInfo);
-        const user = new User(userInfo);
-        const password = await user.hashPassword(userInfo.password)
-        user.password = password
+
+        // Built-in instance method
+        // const user = new User(userInfo);
+        // const password = await user.hashPassword(userInfo.password)
+        // user.password = password
+        // console.log(password)
+        // await user.save();
+
+        // Built-in Static Methods
+        const password = await User.hashPassword(userInfo.password)
         console.log(password)
-        await user.save();
+        userInfo.password = password;
+        const user = await User.create(userInfo);
         res.status(200).json({ success: true, message: "Successfully user create!", user: user })
     } catch (error: any) {
         console.log(error)
@@ -55,6 +71,7 @@ userRouter.patch("/update-user/:id", async (req: Request, res: Response) => {
 userRouter.delete("/user-delete/:id", async (req: Request, res: Response) => {
     const id = req.params.id;
     // const user = await User.deleteOne({ _id: id });
-    const user = await User.findByIdAndDelete(id);
+    // const user = await User.findByIdAndDelete(id);
+    const user = await User.findOneAndDelete({ _id: id });
     res.status(200).json({ success: true, message: "Successfully user updated!", user })
 })
